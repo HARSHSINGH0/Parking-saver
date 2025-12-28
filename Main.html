@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Saver</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0F172A;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .card {
+        background: #1E293B;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        margin-bottom: 20px;
+    }
+
+    h1 {
+        color: #818CF8;
+        margin-bottom: 25px;
+        font-size: 28px;
+        text-align: center;
+    }
+
+    .section {
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        color: #94A3B8;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+    }
+
+    .locations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .location-item {
+        position: relative;
+    }
+
+    .location-item input[type="checkbox"] {
+        display: none;
+    }
+
+    .location-label {
+        display: block;
+        padding: 15px;
+        background: #334155;
+        border: 2px solid #475569;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+        color: #E2E8F0;
+    }
+
+    .location-item input[type="checkbox"]:checked + .location-label {
+        background: #6366F1;
+        border-color: #6366F1;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .add-location {
+        display: flex;
+        gap: 10px;
+    }
+
+    .add-location input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #475569;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        transition: border 0.2s;
+        background: #334155;
+        color: #E2E8F0;
+    }
+
+    .add-location input:focus {
+        border-color: #818CF8;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        outline: none;
+    }
+
+    .btn-primary {
+        background: #6366F1;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #4F46E5;
+    }
+
+    .btn-success {
+        background: #10B981;
+        color: white;
+        width: 100%;
+        font-size: 16px;
+        padding: 15px;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+    }
+
+    .btn-secondary {
+        background: #475569;
+        color: white;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+        background: #334155;
+    }
+
+    .tip-box {
+        background: #422006;
+        border: 2px solid #92400E;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 15px;
+        font-size: 13px;
+        color: #FCD34D;
+        line-height: 1.6;
+    }
+
+    .map-info {
+        background: #064E3B;
+        border: 2px solid #10B981;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    .map-info.active {
+        display: block;
+    }
+
+    .map-info p {
+        color: #A7F3D0;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .map-info a {
+        color: #818CF8;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 8px;
+    }
+
+    .saved-indicator {
+        text-align: center;
+        color: #10B981;
+        font-weight: 600;
+        margin-top: 15px;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .saved-indicator.show {
+        opacity: 1;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        width: 24px;
+        height: 24px;
+        background: #EF4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        display: none;
+    }
+
+    .location-item:hover .delete-btn {
+        display: block;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #475569;
+        border-radius: 10px;
+        font-size: 15px;
+        outline: none;
+        background: #334155;
+        color: #E2E8F0;
+        margin-bottom: 10px;
+    }
+
+    input[type="text"]:focus {
+        border-color: #818CF8;
+    }
+
+    .coords-input-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 480px) {
+        .locations-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🚗 Parking Saver</h1>
+
+```
+        <div class="section">
+            <div class="section-title">Select Location</div>
+            <div class="locations-grid" id="locationsGrid"></div>
+            
+            <div class="add-location">
+                <input type="text" id="newLocation" placeholder="Add new location (e.g., A Wing)" maxlength="20">
+                <button class="btn btn-primary" onclick="addLocation()">Add</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Map Location</div>
+            
+            <div class="tip-box">
+                <strong>📍 How to save:</strong><br>
+                • Click "Get Current Location" for auto-detect<br>
+                • Or enter coordinates manually from Google Maps
+            </div>
+            
+            <button class="btn btn-success" onclick="getCurrentLocation()" style="margin-bottom: 10px;">📍 Get Current Location</button>
+            
+            <div class="coords-input-group">
+                <input type="text" id="latInput" placeholder="Latitude" inputmode="decimal">
+                <input type="text" id="lngInput" placeholder="Longitude" inputmode="decimal">
+            </div>
+            
+            <button class="btn btn-success" onclick="saveLocation()">💾 Save Location</button>
+            <button class="btn btn-secondary" onclick="clearLocation()">Clear Location</button>
+            
+            <div class="map-info" id="mapInfo">
+                <p><strong>✓ Saved Location:</strong></p>
+                <p id="mapCoords"></p>
+                <button class="btn btn-success" onclick="openInMaps()" style="margin-top: 10px;">📍 Open in Google Maps</button>
+            </div>
+        </div>
+
+        <div class="saved-indicator" id="savedIndicator">✓ Saved</div>
+    </div>
+</div>
+
+<script>
+    let locations = [];
+    let selectedLocations = [];
+    let mapLocation = null;
+
+    function init() {
+        const savedLocations = localStorage.getItem('parkingLocations');
+        const savedSelection = localStorage.getItem('selectedLocations');
+        const savedMap = localStorage.getItem('mapLocation');
+        
+        if (savedLocations) {
+            locations = JSON.parse(savedLocations);
+        } else {
+            locations = ['A Wing', 'B Wing', 'C Wing', 'D Wing'];
+            saveLocationsToStorage();
+        }
+        
+        if (savedSelection) {
+            selectedLocations = JSON.parse(savedSelection);
+        }
+        
+        if (savedMap) {
+            mapLocation = JSON.parse(savedMap);
+            displayMapInfo();
+        }
+        
+        renderLocations();
+    }
+
+    function renderLocations() {
+        const grid = document.getElementById('locationsGrid');
+        grid.innerHTML = '';
+        
+        locations.forEach((location, index) => {
+            const div = document.createElement('div');
+            div.className = 'location-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `loc-${index}`;
+            checkbox.checked = selectedLocations.includes(location);
+            checkbox.onchange = () => selectLocation(location);
+            
+            const label = document.createElement('label');
+            label.className = 'location-label';
+            label.htmlFor = `loc-${index}`;
+            label.textContent = location;
+            
+            const deleteBtn = document.createElement('button');:
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteLocation(index);
+            };
+            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            div.appendChild(deleteBtn);
+            grid.appendChild(div);
+        });
+    }
+
+    function selectLocation(location) {
+        const index = selectedLocations.indexOf(location);
+        if (index > -1) {
+            selectedLocations.splice(index, 1);
+        } else {
+            selectedLocations.push(location);
+        }
+        localStorage.setItem('selectedLocations', JSON.stringify(selectedLocations));
+        renderLocations();
+        showSavedIndicator();
+    }
+
+    function addLocation() {
+        const input = document.getElementById('newLocation');
+        const newLoc = input.value.trim();
+        
+        if (newLoc && !locations.includes(newLoc)) {
+            locations.push(newLoc);
+            saveLocationsToStorage();
+            renderLocations();
+            input.value = '';
+            showSavedIndicator();
+        }
+    }
+
+    function deleteLocation(index) {
+        const location = locations[index];
+        const selIndex = selectedLocations.indexOf(location);
+        if (selIndex > -1) {
+            selectedLocations.splice(selIndex, 1);
+            localStorage.setItem('selectedLocations', JSON.stringify(selectedLocations));
+        }
+        locations.splice(index, 1);
+        saveLocationsToStorage();
+        renderLocations();
+    }
+
+    function getCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser');
+            return;
+        }
+        
+        const btn = event.target;
+        const originalText = btn.textContent;
+        btn.textContent = '⏳ Getting location...';
+        btn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                // Auto-fill the input fields
+                document.getElementById('latInput').value = lat;
+                document.getElementById('lngInput').value = lng;
+                
+                // Auto-save the location
+                mapLocation = {
+                    lat: lat,
+                    lng: lng,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                localStorage.setItem('mapLocation', JSON.stringify(mapLocation));
+                console.log('Auto-saved location:', mapLocation);
+                
+                displayMapInfo();
+                showSavedIndicator();
+                
+                btn.textContent = originalText;
+                btn.disabled = false;
+            },
+            (error) => {
+                console.error('Geolocation error:', error);
+                
+                let errorMsg = '';
+                if (error.code === 1) {
+                    errorMsg = 'Location permission denied.\n\nPlease:\n• Enable location in browser settings\n• Or use HTTPS/localhost\n• Or enter coordinates manually';
+                } else if (error.code === 2) {
+                    errorMsg = 'Location unavailable. Please check your GPS/network.';
+                } else if (error.code === 3) {
+                    errorMsg = 'Location request timed out. Please try again.';
+                } else {
+                    errorMsg = 'Could not get location. Please enter manually.';
+                }
+                
+                alert(errorMsg);
+                
+                btn.textContent = originalText;
+                btn.disabled = false;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    function saveLocation() {
+        const latValue = document.getElementById('latInput').value.trim();
+        const lngValue = document.getElementById('lngInput').value.trim();
+        
+        console.log('Input values:', latValue, lngValue);
+        
+        if (!latValue || !lngValue) {
+            alert('Please enter both latitude and longitude');
+            return;
+        }
+        
+        const lat = parseFloat(latValue);
+        const lng = parseFloat(lngValue);
+        
+        console.log('Parsed values:', lat, lng);
+        
+        if (isNaN(lat) || isNaN(lng)) {
+            alert('Please enter valid numbers for latitude and longitude');
+            return;
+        }
+        
+        if (lat < -90 || lat > 90) {
+            alert('Latitude must be between -90 and 90');
+            return;
+        }
+        
+        if (lng < -180 || lng > 180) {
+            alert('Longitude must be between -180 and 180');
+            return;
+        }
+        
+        mapLocation = {
+            lat: lat,
+            lng: lng,
+            timestamp: new Date().toLocaleString()
+        };
+        
+        localStorage.setItem('mapLocation', JSON.stringify(mapLocation));
+        console.log('Saved to localStorage:', mapLocation);
+        
+        displayMapInfo();
+        showSavedIndicator();
+        
+        document.getElementById('latInput').value = '';
+        document.getElementById('lngInput').value = '';
+    }
+
+    function clearLocation() {
+        mapLocation = null;
+        localStorage.removeItem('mapLocation');
+        document.getElementById('mapInfo').classList.remove('active');
+        document.getElementById('latInput').value = '';
+        document.getElementById('lngInput').value = '';
+        showSavedIndicator();
+    }
+
+    function openInMaps() {
+        if (mapLocation) {
+            const url = `https://www.google.com/maps?q=${mapLocation.lat},${mapLocation.lng}`;
+            window.open(url, '_blank');
+        }
+    }
+
+    function displayMapInfo() {
+        if (mapLocation) {
+            console.log('Displaying map info:', mapLocation);
+            const mapInfo = document.getElementById('mapInfo');
+            const coords = document.getElementById('mapCoords');
+            
+            coords.innerHTML = `Latitude: ${mapLocation.lat}<br>Longitude: ${mapLocation.lng}<br>Saved: ${mapLocation.timestamp}`;
+            
+            mapInfo.classList.add('active');
+        }
+    }
+
+    function saveLocationsToStorage() {
+        localStorage.setItem('parkingLocations', JSON.stringify(locations));
+    }
+
+    function showSavedIndicator() {
+        const indicator = document.getElementById('savedIndicator');
+        indicator.classList.add('show');
+        setTimeout(() => {
+            indicator.classList.remove('show');
+        }, 2000);
+    }
+
+    document.getElementById('newLocation').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addLocation();
+        }
+    });
+
+    document.getElementById('latInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            document.getElementById('lngInput').focus();
+        }
+    });
+
+    document.getElementById('lngInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            saveLocation();
+        }
+    });
+
+    init();
+</script>
+```
+
+</body>
+</html>
